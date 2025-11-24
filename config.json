@@ -12,5 +12,5 @@
   "scanInterval": 10,
   "useMarketOrder": true,
   "testOnTestnet": false,
-  "dryRun": true
+  "dryRun": false 
 }
