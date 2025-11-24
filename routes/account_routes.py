@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from services.account_service import get_accounts, add_account, delete_account, test_account
+from services.accounts_service import get_accounts, add_account, delete_account, test_account
 
 # Create router
 router = APIRouter()
