@@ -3,7 +3,7 @@ services:
     name: Superb_crypto_bot
     env: python
     buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PORT
         value: 8000
@@ -11,7 +11,7 @@ services:
         value: False
       - key: PRICE_POLL_INTERVAL
         value: 3.0
-    healthCheckPath: /status
+    healthCheckPath: /
     disk:
       name: mgx-bot-data
       mountPath: /app/data
