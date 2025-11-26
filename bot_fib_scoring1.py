@@ -86,16 +86,16 @@ TRADE_SETTINGS = {
     "test_on_testnet": CONFIG.get("testOnTestnet", False),
     "scan_interval": int(CONFIG.get("scanInterval", 10)),
     "debug_raw_responses": CONFIG.get("debugRawResponses", False),
-    "dry_run": CONFIG.get("dryRun", True),
+    "dry_run": CONFIG.get("dryRun", False),
     "max_trades_per_day": int(CONFIG.get("maxTradesPerDay", 30)), # New limit
 }
 
 # Adjusted paths to match existing project structure (app/ instead of accounts/)
-ACCOUNTS_FILE = os.path.join(BASE_DIR, "app/accounts.json")
-TRADES_FILE = os.path.join(BASE_DIR, "app/trades.json")
+ACCOUNTS_FILE = os.path.join(BASE_DIR, "accounts/accounts.json")
+TRADES_FILE = os.path.join(BASE_DIR, "accounts/trades.json")
 
 # Ensure app directory exists
-os.makedirs(os.path.join(BASE_DIR, "app"), exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, "accounts"), exist_ok=True)
 
 # Ensure files exist
 for f in (ACCOUNTS_FILE, TRADES_FILE):
