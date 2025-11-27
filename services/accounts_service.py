@@ -5,7 +5,7 @@ from typing import List, Dict
 from app_state import bc
 
 # Path to the accounts file your service THINKS is used
-ACCOUNTS_FILE_PATH = "accounts/accounts.json"
+ACCOUNTS_FILE_PATH = "var/tmp/accounts.json"
 
 # Ensure accounts directory exists on startup
 os.makedirs(os.path.dirname(ACCOUNTS_FILE_PATH), exist_ok=True)
