@@ -18,12 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create necessary directories and files
-RUN mkdir -p /app/data && \
-    touch /app/accounts.json && \
-    touch /app/trades.json && \
-    echo "[]" > /app/accounts.json && \
-    echo "[]" > /app/trades.json
+# Create a writable directory for runtime data
+RUN mkdir -p /var/tmp
 
 # Set environment variables
 ENV PYTHONPATH=/app
