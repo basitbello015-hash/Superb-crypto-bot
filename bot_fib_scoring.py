@@ -91,11 +91,11 @@ TRADE_SETTINGS = {
 }
 
 # Adjusted paths to match existing project structure (app/ instead of accounts/)
-ACCOUNTS_FILE = os.path.join(BASE_DIR, "accounts/accounts.json")
-TRADES_FILE = os.path.join(BASE_DIR, "accounts/trades.json")
+ACCOUNTS_FILE = os.path.join(BASE_DIR, "var/tmp/accounts.json")
+TRADES_FILE = os.path.join(BASE_DIR, "var/tmp/trades.json")
 
 # Ensure app directory exists
-os.makedirs(os.path.join(BASE_DIR, "accounts"), exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, "var/tmp"), exist_ok=True)
 
 # Ensure files exist
 for f in (ACCOUNTS_FILE, TRADES_FILE):
