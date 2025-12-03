@@ -93,7 +93,7 @@ async def root(request: Request):
     # Serving dashboard.html as the main entry point
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
-@app.get("/accounts", response_class=HTMLResponse)
+@app.get("/api/accounts", response_class=HTMLResponse)
 async def accounts_page(request: Request):
     accounts = get_accounts()
     return templates.TemplateResponse("accounts.html", {"request": request, "accounts": accounts})
