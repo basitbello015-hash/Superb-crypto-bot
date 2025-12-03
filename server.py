@@ -19,7 +19,7 @@ from routes.accounts_routes import router as accounts_router
 from routes.bot_routes import router as bot_router
 from routes.dashboard_routes import router as dashboard_router
 from routes.history_routes import router as history_router
-from services.account_service import get_accounts
+from services.accounts_service import get_accounts
 from services.config_service import get_config
 
 # -----------------------
