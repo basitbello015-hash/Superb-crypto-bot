@@ -362,10 +362,9 @@ class BotController:
             return changed
         except Exception as e:
             self.log(f"update_trade error: {e}")
-            return False
-
-    # ------------------ Client wrapper ------------------
-    def _get_client(self, account: Dict[str, Any]) -> Optional[HTTP]:
+            return False 
+# ------------------ Client wrapper ------------------
+def _get_client(self, account: Dict[str, Any]) -> Optional[HTTP]:
     """
     Return a pybit HTTP client if all required fields exist:
     - id (dashboard unique account id)
