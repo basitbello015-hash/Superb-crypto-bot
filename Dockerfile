@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create a writable directory for runtime data
-RUN mkdir -p /var/tmp
+RUN mkdir -p /app/data
 
 # Set environment variables
 ENV PYTHONPATH=/app
