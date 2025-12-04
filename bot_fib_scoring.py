@@ -366,61 +366,69 @@ class BotController:
 
     # ------------------ Client wrapper ------------------
     def _get_client(self, account: Dict[str, Any]) -> Optional[HTTP]:
-        """
-        Return a pybit HTTP client if all required fields exist:
-        - account_name
-        - exchange
-        - api_key
-        - api_secret
-        Otherwise return None.
-        """
-        try:
-            # Required fields
-            account_name = account.get("account_name") or account.get("name")
-            exchange = account.get("exchange") or account.get("platform")
+    """
+    Return a pybit HTTP client if all required fields exist:
+    - id (dashboard unique account id)
+    - name (account display name)
+    - exchange
+    - apiKey
+    - secretKey
+    """
+    try:
+        # Dashboard fields
+        account_id = account.get("id")                # must exist
+        account_name = account.get("name")            # must exist
+        exchange = account.get("exchange")
 
-            # API credentials (allow multiple key names for backward compatibility)
-            key = (
-                account.get("api_key")
-                or account.get("key")
-                or account.get("apiKey")
-            )
-            secret = (
-                account.get("api_secret")
-                or account.get("secret")
-                or account.get("apiSecret")
-            )
+        # API credentials (dashboard naming)
+        key = (
+            account.get("api_key")
+            or account.get("key")
+            or account.get("apiKey")                  # dashboard
+        )
 
-            # Validate required fields
-            if not account_name:
-                self.log("Missing account_name in account")
-                return None
+        secret = (
+            account.get("api_secret")
+            or account.get("secret")
+            or account.get("apiSecret")
+            or account.get("secretKey")               # dashboard
+        )
 
-            if not exchange:
-                self.log("Missing exchange in account")
-                return None
-
-            if not key or not secret:
-                self.log("Missing API credentials")
-                return None
-
-            # Currently only Bybit supported
-            if exchange.lower() != "bybit":
-                self.log(f"Unsupported exchange: {exchange}")
-                return None
-
-            # Create authenticated client
-            client = HTTP(
-                api_key=key,
-                api_secret=secret,
-                testnet=TRADE_SETTINGS.get("test_on_testnet", False)
-            )
-
-            return client
-
-        except Exception as e:
-            self.log(f"_get_client error: {e}")
+        # Validate required fields (separately)
+        if not account_id:
+            self.log("Missing account id")
             return None
+
+        if not account_name:
+            self.log("Missing account name")
+            return None
+
+        if not exchange:
+            self.log("Missing exchange field")
+            return None
+
+        if not key or not secret:
+            self.log("Missing API credentials")
+            return None
+
+        if exchange.lower() != "bybit":
+            self.log(f"Unsupported exchange: {exchange}")
+            return None
+
+        # Create client
+        client = HTTP(
+            api_key=key,
+            api_secret=secret,
+            testnet=TRADE_SETTINGS.get("test_on_testnet", False)
+        )
+
+        self.log(f"Client created for {account_name} (ID: {account_id})")
+
+        return client
+
+    except Exception as e:
+        self.log(f"_get_client error: {e}")
+        return None
 
     # ------------------ API retry wrapper ------------------
     def _retry(self, fn: Callable[..., Any], attempts: int = 3, base_delay: float = 0.5, *args, **kwargs):
