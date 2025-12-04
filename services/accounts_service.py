@@ -5,7 +5,7 @@ from typing import List, Dict
 from app_state import bc
 
 # Path to the accounts file your service THINKS is used
-ACCOUNTS_FILE_PATH = "var/tmp/accounts.json"
+ACCOUNTS_FILE_PATH = "app/data/accounts.json"
 
 # Ensure accounts directory exists on startup
 os.makedirs(os.path.dirname(ACCOUNTS_FILE_PATH), exist_ok=True)
@@ -29,10 +29,20 @@ def get_accounts() -> List[Dict]:
 
 
 def add_account(data: dict) -> Dict:
-    """
-    Add a new account and include deep debugging.
-    """
     debug_print("ADDING ACCOUNT → incoming data:", data)
+
+    # Normalize keys
+    normalized = {
+        "id": data.get("id") or str(uuid.uuid4()),
+        "name": data.get("name"),
+        "exchange": data.get("exchange"),
+        "api_key": data.get("apiKey") or data.get("api_key"),
+        "api_secret": data.get("api_secret") or data.get("secretKey") or data.get("secret_key"),
+        "monitoring": data.get("monitoring", False),
+        "position": data.get("position", "closed"),
+    }
+
+    data = normalized
 
     # Generate ID if missing
     if "id" not in data:
