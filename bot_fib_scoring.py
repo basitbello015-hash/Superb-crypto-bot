@@ -374,7 +374,7 @@ class BotController:
     - id (dashboard unique account id)
     - name (account display name)
     - exchange
-    - apiKey
+    - api_Key
     - api_secret
     """
     try:
