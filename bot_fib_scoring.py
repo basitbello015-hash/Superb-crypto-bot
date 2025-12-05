@@ -256,7 +256,7 @@ def pivot_fib_levels_from_confirmed_window(highs: List[float], lows: List[float]
 class BotController:
     def __init__(self, log_queue: Optional[threading.Queue] = None):
         self.log_queue = log_queue
-        self._running = False
+        self._running = True
         self._stop = threading.Event()
         self._file_lock = threading.Lock()
         self._threads: List[threading.Thread] = []
