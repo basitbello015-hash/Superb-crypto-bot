@@ -36,9 +36,9 @@ def add_account(data: dict) -> Dict:
         "id": data.get("id") or str(uuid.uuid4()),
         "name": data.get("name"),
         "exchange": data.get("exchange"),
-        "api_key": data.get("apiKey") or data.get("api_key"),
+        "api_key": data.get("api_Key") or data.get("apikey"),
         "api_secret": data.get("api_secret") or data.get("secretKey") or data.get("secret_key"),
-        "monitoring": data.get("monitoring", False),
+        "monitoring": data.get("monitoring", True),
         "position": data.get("position", "closed"),
     }
 
@@ -48,7 +48,7 @@ def add_account(data: dict) -> Dict:
     if "id" not in data:
         data["id"] = str(uuid.uuid4())
 
-    data.setdefault("monitoring", False)
+    data.setdefault("monitoring", True)
     data.setdefault("position", "closed")
 
     # Ensure file exists
