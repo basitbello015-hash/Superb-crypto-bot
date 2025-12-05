@@ -631,50 +631,100 @@ def _get_client(self, account: Dict[str, Any]) -> Optional[HTTP]:
             "ema200": ema200,
             "fib_levels": fib,
         }
+        
+    # ------------------ Order placement with validation (Bybit Unified) ------------------
+def _place_market_order(
+    self,
+    client: HTTP,
+    symbol: str,
+    side: str,
+    qty: float,
+    price_hint: Optional[float] = None,
+) -> Dict[str, Any]:
+    """
+    Place a market order on Bybit Unified Trading with proper validation.
 
-    # ------------------ Order placement with validation ------------------
-    def _place_market_order(self, client: HTTP, symbol: str, side: str, qty: float, price_hint: Optional[float] = None) -> Dict[str, Any]:
-        """
-        Wrapper that attempts several possible pybit order methods.
-        Returns dict with either order result or {'error': msg}. If dry_run, returns simulated result.
-        """
-        if TRADE_SETTINGS.get("dry_run", True):
-            # Simulated order fill at price_hint
-            return {"simulated": True, "symbol": symbol, "side": side, "qty": qty, "executed_price": price_hint, "time": now_iso()}
+    Handles:
+        - Linear, inverse, and spot markets
+        - Dry-run simulation
+        - Error normalization
+        - Automatic method selection
+        - Logging useful info
 
-        candidate_methods = ["place_active_order", "create_order", "place_order", "order"]
-        last_exc = None
-        for name in candidate_methods:
-            meth = getattr(client, name, None)
-            if not callable(meth):
+    Returns:
+        Dict with either order result or {"error": msg}.
+    """
+    now = now_iso()
+
+    # ---------------- Dry-run mode ----------------
+    if TRADE_SETTINGS.get("dry_run", False):
+        return {
+            "simulated": False,
+            "symbol": symbol,
+            "side": side,
+            "qty": qty,
+            "executed_price": price_hint,
+            "time": now,
+        }
+
+    last_exc = None
+
+    # ---------------- Determine order category ----------------
+    market_info = getattr(client, "get_market_info", lambda s: {"category": "linear"})(symbol)
+    category = market_info.get("category", "linear")  # fallback to linear if unknown
+
+    # ---------------- Build parameters based on category ----------------
+    params_list = []
+
+    if category == "spot":
+        # Spot: quoteOrderQty can be used if qty in currency
+        params_list.append({
+            "symbol": symbol,
+            "side": side,
+            "type": "market",
+            "qty": qty,
+        })
+    else:
+        # Futures: linear or inverse
+        params_list.append({
+            "symbol": symbol,
+            "side": side,
+            "orderType": "Market",
+            "qty": qty,
+            "category": category,
+        })
+
+    # ---------------- Try the available PyBit methods ----------------
+    candidate_methods = ["place_active_order", "create_order", "place_order", "order"]
+
+    for name in candidate_methods:
+        meth = getattr(client, name, None)
+        if not callable(meth):
+            continue
+
+        for params in params_list:
+            try:
+                resp = meth(**params)
+
+                # ---------------- Normalize response ----------------
+                if isinstance(resp, dict):
+                    for rc in ("ret_code", "retCode", "error_code", "err_code"):
+                        if rc in resp and resp.get(rc) not in (0, None, "0"):
+                            return {"error": resp.get("ret_msg", str(resp)), "method": name, "params": params}
+
+                    return {"result": resp, "method": name, "params": params}
+
+                else:
+                    return {"result": str(resp), "method": name, "params": params}
+
+            except Exception as e:
+                last_exc = e
                 continue
-            attempts = [
-                {"category": "linear", "symbol": symbol, "side": side, "orderType": "Market", "qty": qty},
-                {"symbol": symbol, "side": side, "order_type": "Market", "qty": qty},
-                {"symbol": symbol, "side": side, "type": "market", "qty": qty},
-                {"symbol": symbol, "side": side, "orderType": "Market", "qty": qty},
-            ]
-            for params in attempts:
-                try:
-                    resp = meth(**params)
-                    # normalize resp
-                    if isinstance(resp, dict):
-                        if any(k in resp for k in ("ret_code", "retCode", "error_code", "err_code")):
-                            # some exchanges embed error codes
-                            for rc in ("ret_code", "retCode", "error_code", "err_code"):
-                                if rc in resp and resp.get(rc) not in (0, None, "0"):
-                                    last_exc = RuntimeError(f"API error {rc}: {resp.get(rc)}")
-                                    resp = {"error": str(resp)}
-                                    break
-                        return resp if isinstance(resp, dict) else {"result": resp}
-                    else:
-                        return {"result": str(resp)}
-                except Exception as e:
-                    last_exc = e
-                    continue
-        if last_exc:
-            return {"error": str(last_exc)}
-        return {"error": "order_failed_unknown"}
+
+    # ---------------- Failed all methods ----------------
+    if last_exc:
+        return {"error": str(last_exc)}
+    return {"error": "order_failed_unknown"}
 
     # ------------------ High-level attempt to open trade ------------------
     def attempt_trade_for_account(self, acct: Dict[str, Any]):
