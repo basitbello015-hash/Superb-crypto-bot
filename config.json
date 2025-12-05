@@ -1,5 +1,5 @@
 {
-  "exchange": "Bybit",
+  "exchange": "bybit",
   "strategy": "scalping",
   "stopLoss": -1.0,
   "maxHold": 1800,
