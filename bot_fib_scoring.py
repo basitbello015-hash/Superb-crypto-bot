@@ -711,7 +711,7 @@ def _place_market_order(
         })
 
     # ---------------- Try the available PyBit methods ----------------  
-   candidate_methods = ["place_active_order", "create_order", "place_order", "order"]
+ candidate_methods = ["place_active_order", "create_order", "place_order", "order"]
 
     for name in candidate_methods:
         meth = getattr(client, name, None)
