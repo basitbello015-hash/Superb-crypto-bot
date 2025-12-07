@@ -1235,7 +1235,7 @@ def _place_market_order(
     def start(self):
         if self._running:
             return
-        self._running = False 
+        self._running = True
         self._stop.clear()
         t = threading.Thread(target=self._run_loop, daemon=True)
         self._threads.append(t)
