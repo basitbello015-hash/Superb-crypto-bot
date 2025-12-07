@@ -286,20 +286,28 @@ class BotController:
             except Exception:
                 pass
 
-    # ------------------ Daily Limit Check ------------------
-    def _check_daily_limit(self) -> bool:
-        """
-        Returns True if daily limit is reached.
-        Resets counter if 24 hours have passed since start/last reset.
-        """
-        if time.time() - self.day_start_time > 86400:
-            self.log("24 hours passed. Resetting daily trade counter.")
-            self.day_start_time = time.time()
-            self.trades_today = 0
-        
-        if self.trades_today >= self.MAX_TRADES_DAILY:
-            return True
-        return False
+# ------------------ Daily Limit Check ------------------
+def _check_daily_limit(self) -> bool:
+    """
+    Returns True if daily limit is reached.
+    Resets counter if 24 hours have passed since last reset.
+    Does NOT stop the bot automatically — just signals limit reached.
+    """
+    current_time = time.time()
+    
+    # Reset counter if 24 hours passed
+    if current_time - getattr(self, "day_start_time", current_time) > 86400:
+        self.log("24 hours passed. Resetting daily trade counter.")
+        self.day_start_time = current_time
+        self.trades_today = 0
+    
+    # Return True if daily limit reached
+    limit_reached = getattr(self, "trades_today", 0) >= getattr(self, "MAX_TRADES_DAILY", 0)
+    
+    if limit_reached:
+        self.log(f"Daily trade limit reached ({self.trades_today}/{self.MAX_TRADES_DAILY})")
+    
+    return limit_reached
 
     # ------------------ Account file helpers (locked) ------------------
     def load_accounts(self) -> List[Dict[str, Any]]:
