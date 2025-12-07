@@ -256,7 +256,7 @@ def pivot_fib_levels_from_confirmed_window(highs: List[float], lows: List[float]
 class BotController:
     def __init__(self, log_queue: Optional[threading.Queue] = None):
         self.log_queue = log_queue
-        self._running = True 
+        self._running = False 
         self._stop = threading.Event()
         self._file_lock = threading.Lock()
         self._threads: List[threading.Thread] = []
@@ -1235,7 +1235,7 @@ def _place_market_order(
     def start(self):
         if self._running:
             return
-        self._running = True
+        self._running = False 
         self._stop.clear()
         t = threading.Thread(target=self._run_loop, daemon=True)
         self._threads.append(t)
@@ -1244,7 +1244,7 @@ def _place_market_order(
 
     def stop(self):
         self._stop.set()
-        self._running = True 
+        self._running = False 
         self.log("Stop requested")
         for t in self._threads:
             if t.is_alive():
