@@ -1267,7 +1267,7 @@ def _place_market_order(
                 t.join(timeout=1)
         self.log("Stopped")
 
-    def _run_loop(self):
+def _run_loop(self):
     while not self._stop.is_set():
         try:
             # Check daily limit before trading
