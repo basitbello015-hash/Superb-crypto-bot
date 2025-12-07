@@ -289,24 +289,32 @@ class BotController:
 # ------------------ Daily Limit Check ------------------
 def _check_daily_limit(self) -> bool:
     """
-    Returns True if daily limit is reached.
+    Returns True if the daily trade limit is reached.
+    Does NOT stop the bot — just signals that trades should be skipped.
     Resets counter if 24 hours have passed since last reset.
-    Does NOT stop the bot automatically — just signals limit reached.
     """
     current_time = time.time()
-    
-    # Reset counter if 24 hours passed
-    if current_time - getattr(self, "day_start_time", current_time) > 86400:
+
+    # Initialize if missing
+    if not hasattr(self, "day_start_time"):
+        self.day_start_time = current_time
+        self.trades_today = 0
+
+    # Reset counter after 24h
+    if current_time - self.day_start_time > 86400:
         self.log("24 hours passed. Resetting daily trade counter.")
         self.day_start_time = current_time
         self.trades_today = 0
-    
-    # Return True if daily limit reached
-    limit_reached = getattr(self, "trades_today", 0) >= getattr(self, "MAX_TRADES_DAILY", 0)
-    
+
+    # Ensure MAX_TRADES_DAILY exists
+    if not hasattr(self, "MAX_TRADES_DAILY") or self.MAX_TRADES_DAILY <= 0:
+        self.MAX_TRADES_DAILY = 10  # default value
+
+    # Return True if limit reached
+    limit_reached = self.trades_today >= self.MAX_TRADES_DAILY
     if limit_reached:
         self.log(f"Daily trade limit reached ({self.trades_today}/{self.MAX_TRADES_DAILY})")
-    
+
     return limit_reached
 
     # ------------------ Account file helpers (locked) ------------------
@@ -1260,16 +1268,25 @@ def _place_market_order(
         self.log("Stopped")
 
     def _run_loop(self):
-        while not self._stop.is_set():
-            try:
+    while not self._stop.is_set():
+        try:
+            # Check daily limit before trading
+            if self._check_daily_limit():
+                self.log("Skipping trade due to daily limit.")
+            else:
+                # Execute a trade
                 self._scan_once()
-            except Exception as e:
-                self.log(f"run loop error: {e}")
-            interval = int(TRADE_SETTINGS.get("scan_interval", 10))
-            for _ in range(interval):
-                if self._stop.is_set():
-                    break
-                time.sleep(1)
+                self.trades_today += 1
+
+        except Exception as e:
+            self.log(f"Run loop error: {e}")
+
+        # Sleep interval
+        interval = int(TRADE_SETTINGS.get("scan_interval", 10))
+        for _ in range(interval):
+            if self._stop.is_set():
+                break
+            time.sleep(1)
 
 # ------------------ CLI debug run ------------------
 if __name__ == "__main__":
