@@ -1273,26 +1273,26 @@ def try_pybit_methods(clients, params_list):
                 t.join(timeout=1)
         self.log("Stopped")
 
-def _run_loop(self):
-    while not self._stop.is_set():
-        try:
-            # Check daily limit before trading
-            if self._check_daily_limit():
-                self.log("Skipping trade due to daily limit.")
-            else:
-                # Execute a trade
-                self._scan_once()
-                self.trades_today += 1
+    def _run_loop(self):
+        while not self._stop.is_set():
+            try:
+                # Check daily limit before trading
+                if self._check_daily_limit():
+                    self.log("Skipping trade due to daily limit.")
+                else:
+                    # Execute a trade
+                    self._scan_once()
+                    self.trades_today += 1
 
-        except Exception as e:
-            self.log(f"Run loop error: {e}")
+            except Exception as e:
+                self.log(f"Run loop error: {e}")
 
-        # Sleep interval
-        interval = int(TRADE_SETTINGS.get("scan_interval", 10))
-        for _ in range(interval):
-            if self._stop.is_set():
-                break
-            time.sleep(1)
+            # Sleep interval
+            interval = int(TRADE_SETTINGS.get("scan_interval", 10))
+            for _ in range(interval):
+                if self._stop.is_set():
+                    break
+                time.sleep(1)
 
 # ------------------ CLI debug run ------------------
 if __name__ == "__main__":
