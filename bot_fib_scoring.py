@@ -743,10 +743,10 @@ def try_pybit_methods(clients, params_list):
                 else:
                     return {"result": str(resp), "method": name, "params": params}
 
-                   except Exception as e:
-                       print(f"{name} faild with params {params}: {e}")
-                       last_exc = e
-                       continue
+                    except Exception as e:
+                        print(f"{name} faild with params {params}: {e}")
+                        last_exc = e
+                        continue
 
     # ---------------- Failed all methods ----------------
     if last_exc:
