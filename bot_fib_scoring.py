@@ -711,17 +711,26 @@ def _place_market_order(
         })
 
     # ---------------- Try the available PyBit methods ----------------    
-def try_pybit_methods(clients,params_list):  
-   candidate_methods = ["place_active_order", "create_order", "place_order", "order"]
+def try_pybit_methods(clients, params_list):
+    candidate_methods = [
+        "place_active_order",
+        "create_order",
+        "place_order",
+        "order"
+    ]
 
-     for name in candidate_methods:
-         meth = getattr(client, name, None)
-         if not callable(meth):
-             continue
+    for client in clients:
+        for name in candidate_methods:
+            meth = getattr(client, name, None)
+            if not callable(meth):
+                continue
 
-         for params in params_list:
-             try:
-                 resp = meth(**params)
+            for params in params_list:
+                try:
+                    resp = meth(**params)
+                    print(f"{name} succeeded with params {params}: {resp}")
+                except Exception as e:
+                    print(f"{name} failed with params {params}: {e}")
 
                 # ---------------- Normalize response ----------------
                 if isinstance(resp, dict):
