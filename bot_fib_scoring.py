@@ -287,7 +287,7 @@ class BotController:
                 pass
 
      # ------------------ Daily Limit Check ------------------                      
-     def _check_daily_limit(self) -> bool:
+    def _check_daily_limit(self) -> bool:
         """
         Returns True if the daily trade limit is reached.
         Does NOT stop the bot — just signals that trades should be skipped.
