@@ -286,36 +286,36 @@ class BotController:
             except Exception:
                 pass
 
-# ------------------ Daily Limit Check ------------------
-def _check_daily_limit(self) -> bool:
-    """
-    Returns True if the daily trade limit is reached.
-    Does NOT stop the bot — just signals that trades should be skipped.
-    Resets counter if 24 hours have passed since last reset.
-    """
-    current_time = time.time()
+     # ------------------ Daily Limit Check ------------------                      
+     def _check_daily_limit(self) -> bool:
+        """
+        Returns True if the daily trade limit is reached.
+        Does NOT stop the bot — just signals that trades should be skipped.
+        Resets counter if 24 hours have passed since last reset.
+        """
+        current_time = time.time()
 
-    # Initialize if missing
-    if not hasattr(self, "day_start_time"):
-        self.day_start_time = current_time
-        self.trades_today = 0
+        # Initialize if missing
+        if not hasattr(self, "day_start_time"):
+            self.day_start_time = current_time
+            self.trades_today = 0
 
-    # Reset counter after 24h
-    if current_time - self.day_start_time > 86400:
-        self.log("24 hours passed. Resetting daily trade counter.")
-        self.day_start_time = current_time
-        self.trades_today = 0
+        # Reset counter after 24h
+        if current_time - self.day_start_time > 86400:
+            self.log("24 hours passed. Resetting daily trade counter.")
+            self.day_start_time = current_time
+            self.trades_today = 0
 
-    # Ensure MAX_TRADES_DAILY exists
-    if not hasattr(self, "MAX_TRADES_DAILY") or self.MAX_TRADES_DAILY <= 0:
-        self.MAX_TRADES_DAILY = 10  # default value
+        # Ensure MAX_TRADES_DAILY exists
+        if not hasattr(self, "MAX_TRADES_DAILY") or self.MAX_TRADES_DAILY <= 0:
+            self.MAX_TRADES_DAILY = 10  # default value
 
-    # Return True if limit reached
-    limit_reached = self.trades_today >= self.MAX_TRADES_DAILY
-    if limit_reached:
-        self.log(f"Daily trade limit reached ({self.trades_today}/{self.MAX_TRADES_DAILY})")
+        # Return True if limit reached
+        limit_reached = self.trades_today >= self.MAX_TRADES_DAILY
+        if limit_reached:
+            self.log(f"Daily trade limit reached ({self.trades_today}/{self.MAX_TRADES_DAILY})")
 
-    return limit_reached
+        return limit_reached
 
     # ------------------ Account file helpers (locked) ------------------
     def load_accounts(self) -> List[Dict[str, Any]]:
